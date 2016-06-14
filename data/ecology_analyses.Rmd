@@ -1,0 +1,72 @@
+---
+title: "Ecology test"
+author: "Emily Davenport"
+date: "June 14, 2016"
+output: 
+  html_document:
+    toc: true
+    number_sections: true
+    theme: cerulean
+    highlight: espresso
+    fig_width: 8
+    fig_height: 8
+    fig_caption: yes
+    self_contained: false
+---
+
+# Loading the data
+```{r data_load}
+surveys_raw <- read.csv("https://ndownloader.figshare.com/files/2292172")
+```
+
+Loading some libraries:
+```{r load_libraries, message=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+# Filter the data
+
+Removing missing records with missing values from species_id, weights, or hindfoot_lengths:
+```{r filter_data}
+surveys_complete <- surveys_raw %>%
+  filter(species_id != "") %>%
+  filter(!is.na(weight)) %>%
+  filter(!is.na(hindfoot_length))
+```
+
+Remove species that have low data counts:
+```{r remove_rare}
+species_counts <- surveys_complete %>%
+  group_by(species_id) %>%
+  tally
+
+head(species_counts)
+
+frequent_species <- species_counts %>%
+  filter(n >= 10) %>%
+  select(species_id)
+
+survey_complete <- surveys_complete %>%
+  filter(species_id %in% frequent_species$species_id)
+```
+
+# Analysis
+
+The distribution of hindfoot lengths as a function of species:
+
+```{r boxplot, fig.cap="Figure 1: Hindfoot length within each species", echo=FALSE}
+ggplot(data=survey_complete, aes(x = species_id, y = hindfoot_length)) +
+  geom_boxplot()
+```
+
+Testing.
+
+```{r boxplot2, fig.cap="testing testing", echo=FALSE}
+ggplot(data=survey_complete, aes(x = species_id, y = weight)) +
+  geom_boxplot() +
+  xlab("Species") +
+  ylab("Weight (g)")
+```
+
+The total number of species examined is `r count(frequent_species)`.

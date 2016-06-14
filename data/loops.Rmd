@@ -1,0 +1,148 @@
+---
+title: "loops and stuff"
+author: "Emily Davenport"
+date: "June 14, 2016"
+output: html_document
+---
+
+# Load the data:
+
+Load the pruned survey data:
+```{r}
+surveys <- read.csv('svy_complete.csv')
+```
+
+
+Load libraries:
+
+```{r messages=FALSE}
+library("dplyr")
+library("ggplot2")
+```
+
+# If/else statements
+
+Is the first year 1984?
+
+```{r}
+if (surveys$year[1] == 1984) {
+  print("Great Scott, it's 1984!")
+} else {
+  print("it's not 1984 :(")
+}
+```
+
+**CHallenge!** Write an if/else statement that evaluates whether the first animal in our data is larger than an ounce.
+Ounce = 28.3g
+
+```{r}
+if (surveys$weight[1] > 28.3){
+  print("the first animal weighs more than one ounce")
+} else {
+  print("nope, too tiny.")
+}
+```
+
+# Loop
+
+```{r}
+for (i in 1:dim(surveys)[1]) {
+  if (surveys$year[i] == 1984) {
+    print("Great Scott, it's 1984!")
+  } else {
+    print("it's not 1984 :(")
+  }
+}
+```
+
+```{r}
+surveys_adjusted <- surveys
+```
+
+Just print for 1984:
+
+```{r}
+for (i in 1:dim(surveys_adjusted)[1]) {
+  if (surveys_adjusted$year[i] == 1984) {
+    surveys_adjusted$weight[i] <- surveys$weight[i]*1.1
+  }
+}
+```
+
+```{r}
+surveys %>%
+  group_by(year) %>%
+  summarize(mean_weight = mean(weight))
+```
+
+```{r}
+surveys_adjusted %>%
+  group_by(year) %>%
+  summarize(mean_weight = mean(weight))
+```
+
+Challenge!
+1. Using a for loop and an if/else statement but without using dplyr, tally the number of animals that weight over an oucne in our dataset.
+2. For the animals that are not over an ounce in weight, how many of them are female and how many of them are male?
+
+var <- 0
+var <- var + 1
+
+```{r}
+skinnyM <- 0
+skinnyF <- 0
+largeA <- 0
+for (j in 1:dim(surveys)[1]) {
+  if (surveys$weight[j] > 28.3) {
+    largeA <- largeA + 1
+  } else {
+    if (surveys$sex[j] == "M") {
+      skinnyM <- skinnyM + 1
+    } else {
+      skinnyF <- skinnyF + 1
+    }
+  }
+}
+```
+
+# Functions
+
+```{r}
+convert_1984 <- function(myval) {
+  myval*1.1245697375083747 + 10
+}
+```
+
+
+```{r}
+convert_1984(1)
+```
+
+```{r}
+for (i in 1:dim(surveys_adjusted)[1]) {
+  if (surveys_adjusted$year[i] == 1984) {
+    surveys_adjusted$weight[i] <- convert_1984(surveys$weight[i])
+    surveys_adjusted$hindfoot_length[i] <- convert_1984(surveys$hindfoot_length[i])
+  }
+}
+```
+
+Challenges!
+
+1. Write a function that will calculate the volume of a sphere based off of radius (4/3 * pi * r^3)
+```{r}
+lengthToVolume <- function(len) {
+  return(4/3 * pi * len^3)
+}
+```
+
+
+2. Estimate the skull volume for each animal in the dataset by applying the volume function to the hindfoot_length, where hindfoot_length is a proxy for radius of the skull. 
+
+```{r}
+A <- for (i in 1:dim(surveys_adjusted)[1]) {
+  print(lengthToVolume(surveys_adjusted$hindfoot_length[i]))
+}
+```
+
+
